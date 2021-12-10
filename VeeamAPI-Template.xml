@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <zabbix_export>
     <version>4.2</version>
-    <date>2021-12-08T02:19:04Z</date>
+    <date>2021-12-10T02:06:02Z</date>
     <groups>
         <group>
             <name>Templates</name>
@@ -10,8 +10,8 @@
     <templates>
         <template>
             <template>VeeamBR-RestAPIV1.0</template>
-            <name>Template Veeam BR</name>
-            <description>Template using RestAPI Works with Veeam Backup and Recovery v.11</description>
+            <name>Veeam Backup and Replication</name>
+            <description>Template for get detailed form veeam backup and replication V.11 jobs using RestAPI this template uses  main.py python script.</description>
             <groups>
                 <group>
                     <name>Templates</name>
@@ -199,11 +199,11 @@
                             <key>joblastrun[{#JOBNAME}]</key>
                             <delay>0</delay>
                             <history>90d</history>
-                            <trends>0</trends>
+                            <trends>365d</trends>
                             <status>0</status>
-                            <value_type>4</value_type>
+                            <value_type>3</value_type>
                             <allowed_hosts/>
-                            <units/>
+                            <units>unixtime</units>
                             <snmpv3_contextname/>
                             <snmpv3_securityname/>
                             <snmpv3_securitylevel>0</snmpv3_securitylevel>
@@ -234,6 +234,13 @@
                                 <step>
                                     <type>4</type>
                                     <params>[]&quot;</params>
+                                    <error_handler>0</error_handler>
+                                    <error_handler_params/>
+                                </step>
+                                <step>
+                                    <type>21</type>
+                                    <params>var fecha= new Date(value)
+return(Math.round(fecha.getTime()/1000))</params>
                                     <error_handler>0</error_handler>
                                     <error_handler_params/>
                                 </step>
@@ -274,9 +281,9 @@
                             <key>joblr[{#JOBNAME}]</key>
                             <delay>0</delay>
                             <history>90d</history>
-                            <trends>0</trends>
+                            <trends>365d</trends>
                             <status>0</status>
-                            <value_type>4</value_type>
+                            <value_type>3</value_type>
                             <allowed_hosts/>
                             <units/>
                             <snmpv3_contextname/>
@@ -297,7 +304,9 @@
                             <description/>
                             <inventory_link>0</inventory_link>
                             <applications/>
-                            <valuemap/>
+                            <valuemap>
+                                <name>Veeam jobs result</name>
+                            </valuemap>
                             <logtimefmt/>
                             <preprocessing>
                                 <step>
@@ -309,6 +318,20 @@
                                 <step>
                                     <type>4</type>
                                     <params>[]&quot;</params>
+                                    <error_handler>0</error_handler>
+                                    <error_handler_params/>
+                                </step>
+                                <step>
+                                    <type>5</type>
+                                    <params>(.*)
+\1:Success=0 :Warning=1: Failed=2</params>
+                                    <error_handler>0</error_handler>
+                                    <error_handler_params/>
+                                </step>
+                                <step>
+                                    <type>5</type>
+                                    <params>(Success|Warning|Failed)(?=.*:\1=(\d))
+\2</params>
                                     <error_handler>0</error_handler>
                                     <error_handler_params/>
                                 </step>
@@ -424,11 +447,11 @@
                             <key>jobnextrun[{#JOBNAME}]</key>
                             <delay>0</delay>
                             <history>90d</history>
-                            <trends>0</trends>
+                            <trends>365d</trends>
                             <status>0</status>
-                            <value_type>4</value_type>
+                            <value_type>3</value_type>
                             <allowed_hosts/>
-                            <units/>
+                            <units>unixtime</units>
                             <snmpv3_contextname/>
                             <snmpv3_securityname/>
                             <snmpv3_securitylevel>0</snmpv3_securitylevel>
@@ -459,6 +482,13 @@
                                 <step>
                                     <type>4</type>
                                     <params>[]&quot;</params>
+                                    <error_handler>0</error_handler>
+                                    <error_handler_params/>
+                                </step>
+                                <step>
+                                    <type>21</type>
+                                    <params>var fecha= new Date(value)
+return(Math.round(fecha.getTime()/1000))</params>
                                     <error_handler>0</error_handler>
                                     <error_handler_params/>
                                 </step>
@@ -792,7 +822,24 @@
                             </master_item>
                         </item_prototype>
                     </item_prototypes>
-                    <trigger_prototypes/>
+                    <trigger_prototypes>
+                        <trigger_prototype>
+                            <expression>{VeeamBR-RestAPIV1.0:joblr[{#JOBNAME}].last()}=2</expression>
+                            <recovery_mode>0</recovery_mode>
+                            <recovery_expression/>
+                            <name>Job {#JOBNAME} Failed</name>
+                            <correlation_mode>0</correlation_mode>
+                            <correlation_tag/>
+                            <url/>
+                            <status>0</status>
+                            <priority>2</priority>
+                            <description/>
+                            <type>0</type>
+                            <manual_close>0</manual_close>
+                            <dependencies/>
+                            <tags/>
+                        </trigger_prototype>
+                    </trigger_prototypes>
                     <graph_prototypes/>
                     <host_prototypes/>
                     <jmx_endpoint/>
@@ -832,4 +879,23 @@
             <tags/>
         </template>
     </templates>
+    <value_maps>
+        <value_map>
+            <name>Veeam jobs result</name>
+            <mappings>
+                <mapping>
+                    <value>0</value>
+                    <newvalue>Success</newvalue>
+                </mapping>
+                <mapping>
+                    <value>1</value>
+                    <newvalue>Warning</newvalue>
+                </mapping>
+                <mapping>
+                    <value>2</value>
+                    <newvalue>Failed</newvalue>
+                </mapping>
+            </mappings>
+        </value_map>
+    </value_maps>
 </zabbix_export>
